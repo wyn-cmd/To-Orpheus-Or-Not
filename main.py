@@ -17,10 +17,11 @@ def load_images(directory):
         for file in os.listdir(folder_path):
             img_path = os.path.join(folder_path, file)
             img = cv2.imread(img_path)
-            img = cv2.resize(img, (150, 150))
-            img = img / 255.0  # Normalize pixel values
-            images.append(img)
-            labels.append(folder)
+            if img is not None:
+                img = cv2.resize(img, (150, 150))
+                img = img / 255.0  # Normalize pixel values
+                images.append(img)
+                labels.append(folder)
     return np.array(images), np.array(labels)
 
 img_size = (150, 150)
@@ -54,4 +55,4 @@ model.fit(X_train, y_train, epochs=10, batch_size=batch_size, validation_data=(X
 test_loss, test_acc = model.evaluate(X_test, y_test)
 print('Test accuracy:', test_acc)
 
-model.save('my_model.h5')
+model.save('model.h5')
