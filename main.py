@@ -1,6 +1,10 @@
+# Version 1.0
+
+
 import os
 import numpy as np
 import cv2
+from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
@@ -19,7 +23,7 @@ def load_images(directory):
             img = cv2.imread(img_path)
             if img is not None:
                 img = cv2.resize(img, (150, 150))
-                img = img / 255.0  # Normalize pixel values
+                img = img / 255.0  # normalize pixels
                 images.append(img)
                 labels.append(folder)
     return np.array(images), np.array(labels)
@@ -28,13 +32,13 @@ img_size = (150, 150)
 batch_size = 32
 data_dir = 'data'
 
-X, y = load_images(data_dir)
+x, y = load_images(data_dir)
 
-from sklearn.preprocessing import LabelEncoder
+
 le = LabelEncoder()
 y = le.fit_transform(y)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42) 
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42) 
 
 
 model = Sequential([
