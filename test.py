@@ -3,33 +3,50 @@ import cv2
 import numpy as np
 from tensorflow.keras.models import load_model
 
-# image path
-image_path = "test.png"
+IMAGE_SIZE = (150, 150)
+MODEL_PATH = "model.h5"
+DATA_DIR = "data"
 
 
-model = load_model("model.h5")
+def load_class_labels(data_dir: str) -> list:
+    if not os.path.exists(data_dir):
+        raise FileNotFoundError(f"Data directory '{data_dir}' not found.")
+    return sorted(os.listdir(data_dir))
 
-# function to pre-process the image for prediction
-def pre_process_image(img):
-  img = cv2.imread(img)
-  img = cv2.resize(img, (150, 150))
-  img = img.astype("float32") / 255.0
-  img = np.expand_dims(img, axis=0)
-  return img
 
-# Pre-process the image
-image = pre_process_image(image_path)
-image2 = pre_process_image('test2.png')
+def pre_process_image(image_path: str) -> np.ndarray:
+    if not os.path.exists(image_path):
+        raise FileNotFoundError(f"Image not found: {image_path}")
 
-# prediction if image is Orpheus or not
-prediction = model.predict(image)
-prediction2 = model.predict(image2)
+    img = cv2.imread(image_path)
+    if img is None:
+        raise ValueError(f"Failed to read image: {image_path}")
 
-# Get the Not-Orpheus and Orpheus labels
-class_labels = os.listdir("data")
+    img = cv2.resize(img, IMAGE_SIZE)
+    img = img.astype("float32") / 255.0
+    return np.expand_dims(img, axis=0)
 
-# display predicted class
-predicted_class = class_labels[np.argmax(prediction[0])]
-predicted_class2 = class_labels[np.argmax(prediction2[0])]
-print("Predicted Class:\nTest 1:", predicted_class)
-print('Test 2:', predicted_class2)
+
+def main():
+    if not os.path.exists(MODEL_PATH):
+        raise FileNotFoundError(f"Model file '{MODEL_PATH}' not found.")
+
+    model = load_model(MODEL_PATH)
+    class_labels = load_class_labels(DATA_DIR)
+
+    test_images = ["test.png", "test2.png"]
+    predictions = {}
+
+    for img_path in test_images:
+        processed_img = pre_process_image(img_path)
+        pred = model.predict(processed_img, verbose=0)
+        predicted_class = class_labels[np.argmax(pred[0])]
+        predictions[img_path] = predicted_class
+
+    print("Predicted Class:")
+    print("Test 1:", predictions["test.png"])
+    print("Test 2:", predictions["test2.png"])
+
+
+if __name__ == "__main__":
+    main()
