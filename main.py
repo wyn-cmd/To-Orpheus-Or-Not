@@ -1,6 +1,7 @@
 # Version 1.1
 
-# Image classification training script for the To-Orpheus project.
+# Trains a binary classifier that separates Orpheus images from everything else.
+# Walks the labelled folders under data/ and writes the fitted model to model.h5.
 
 import os
 import numpy as np
@@ -12,6 +13,8 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 
 # Load images and corresponding labels from the dataset directory structure.
+# Every image is squashed to 150x150 here, and that number is written out by hand
+# instead of read from IMG_SIZE below, so the two have to be kept in step.
 def load_images(directory):
     images = []
     labels = []
