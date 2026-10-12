@@ -1,23 +1,30 @@
-# Version 1.1
+# Version 1.2
 
 # Trains a binary classifier that separates Orpheus images from everything else.
 # Walks the labelled folders under data/ and writes the fitted model to model.h5.
 
 import os
-import numpy as np
 import cv2
+import numpy as np
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 
+# Configuration constants
+IMG_SIZE = (150, 150)
+BATCH_SIZE = 32
+DATA_DIR = 'data'
+
 # Load images and corresponding labels from the dataset directory structure.
-# Every image is squashed to 150x150 here, and that number is written out by hand
-# instead of read from IMG_SIZE below, so the two have to be kept in step.
 def load_images(directory):
     images = []
     labels = []
+    
+    if not os.path.exists(directory):
+        print(f"Warning: Data directory '{directory}' does not exist.")
+        return np.array(images), np.array(labels)
     
     for folder in os.listdir(directory):
         folder_path = os.path.join(directory, folder)
@@ -29,20 +36,18 @@ def load_images(directory):
             img = cv2.imread(img_path)
             
             if img is not None:
-                img = cv2.resize(img, (150, 150))
+                img = cv2.resize(img, IMG_SIZE)
                 img = img / 255.0
                 images.append(img)
                 labels.append(folder)
                 
     return np.array(images), np.array(labels)
 
-# Configuration constants
-IMG_SIZE = (150, 150)
-BATCH_SIZE = 32
-DATA_DIR = 'data'
-
 # Load and preprocess dataset
 x, y = load_images(DATA_DIR)
+
+if len(x) == 0:
+    raise ValueError("No training images found. Please populate the data directory correctly.")
 
 le = LabelEncoder()
 y = le.fit_transform(y)
