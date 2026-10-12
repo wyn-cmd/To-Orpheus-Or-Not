@@ -13,19 +13,18 @@ TEST_IMAGES = ["test.png", "test2.png"]
 
 # Load class labels alphabetically from the training data directory.
 def load_class_labels(data_dir: str) -> list:
-    if not os.path.exists(data_dir):
+    if not os.path.isdir(data_dir):
         raise FileNotFoundError(f"Data directory '{data_dir}' not found.")
     
     labels = sorted([d for d in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, d))])
     if not labels:
-        # Fallback to all files/folders if no subdirectories are found.
         labels = sorted(os.listdir(data_dir))
     return labels
 
 
 # Load and preprocess a single image for model inference.
 def pre_process_image(image_path: str) -> np.ndarray:
-    if not os.path.exists(image_path):
+    if not os.path.isfile(image_path):
         raise FileNotFoundError(f"Image not found: {image_path}")
 
     img = cv2.imread(image_path)
@@ -39,7 +38,7 @@ def pre_process_image(image_path: str) -> np.ndarray:
 
 # Run predictions on hardcoded test images and print the results.
 def main():
-    if not os.path.exists(MODEL_PATH):
+    if not os.path.isfile(MODEL_PATH):
         raise FileNotFoundError(f"Model file '{MODEL_PATH}' not found.")
 
     model = load_model(MODEL_PATH)
